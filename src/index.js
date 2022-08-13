@@ -23,13 +23,19 @@ import { createSidebar } from './sidebar.js';
   document.body.appendChild(container)
   container.appendChild(sidebar);
 
+  // Create the main page
+  const mainPage = document.createElement('div')
+  mainPage.classList.add('mainPage')
+  container.appendChild(mainPage)
+
 
   // Event Box
   const taskBox = addEvent();
-  document.body.appendChild(taskBox.addEventDiv);
+  document.body.appendChild(taskBox.taskForm);
 
 
 
+  // Project Class to create a new project
   class Project {
     constructor(title,description,due,priority) {
       this.title = title
@@ -43,6 +49,7 @@ import { createSidebar } from './sidebar.js';
     }
   }
 
+  // Task Class to create a new project
   class Task extends Project {
     constructor(title,description,due,priority) {
       super(title,description,due,priority)
@@ -57,37 +64,94 @@ import { createSidebar } from './sidebar.js';
 
   const Create = (function() {
 
-    const createProject = () => {
 
-
-    }
-
-    const getTaskInfo = (newTask,info) => {
-      newTask[info] = event.target.value;
-      console.log(newTask)
-    }
-
-    const setTaskInfo = () => {
-      const newTask = createTask()
-      taskBox.taskTitle.addEventListener('change', (event) => getTaskInfo(newTask,'title'))
-      taskBox.taskDescription.addEventListener('change', (event) => getTaskInfo(newTask,'description'))
-      taskBox.taskDate.addEventListener('change', (event) => getTaskInfo(newTask,'due'))
-      console.log(newTask);
-    }
+    // add task a bastigiimda : create task obj, set task object, display task object, disappear taskBox 
 
     const createTask = () => {
+      DisplayInfo.displayTaskBox();
       const newTask = new Task();
-      taskBox.addEventDiv.style.display = 'flex'
-
       return newTask
     }
 
-    header.addIcon.addEventListener('click',createTask)
+    const setTaskInfo = (newTask) => {
+      newTask.title = document.getElementById('taskTitleInput').value
+      newTask.description = document.getElementById('taskDescriptionInput').value
+      newTask.due = document.getElementById('taskDateInput').value
+    }
 
+
+    const createTaskDiv = (title,due) => {
+      const task = document.createElement('div')
+      
+      const taskName = document.createElement('div')
+      const titleHolder = document.createElement('p')
+      const taskTitleP = document.createElement('p')
+      
+      const taskDueDate = document.createElement('div')
+      const dueDateHolder = document.createElement('p')
+      const taskDueP = document.createElement('p')
+
+      const taskCheckbox = document.createElement('input')
+
+      task.classList.add('task')
+      taskName.classList.add('taskName')
+      taskDueDate.classList.add('taskDueDate')
+
+      taskTitleP.id = 'taskTitle'
+      taskDueP.id = 'taskDue'
+
+      titleHolder.textContent = 'Task Title:'
+      dueDateHolder.textContent = 'Due Date:'
+
+      taskTitleP.textContent = title
+      taskDueP.textContent = due
+
+      taskCheckbox.type = 'checkbox'
+      taskCheckbox.id = 'taskCheckBox'
+
+      taskName.appendChild(titleHolder)
+      taskName.appendChild(taskTitleP)
+
+      taskDueDate.appendChild(dueDateHolder)
+      taskDueDate.appendChild(taskDueP)
+
+      task.appendChild(taskName)
+      task.appendChild(taskDueDate)
+      task.appendChild(taskCheckbox)
+
+      return task
+    }
+
+
+
+
+    const addTask = (event) => {
+
+      // Create the task
+      const newTask = createTask()
+
+      // Set task object
+      setTaskInfo(newTask)
+
+      // Display the task object on the page!
+      DisplayInfo.displayTask(newTask.title,newTask.due)
+
+      // Disappear the task box
+      DisplayInfo.disappearTaskBox()
+
+
+      event.preventDefault();
+      event.target.reset()
+    }
+
+
+    header.addIcon.addEventListener('click',createTask)
+    taskBox.taskForm.addEventListener('submit', addTask)
 
     return {
       createTask,
-      setTaskInfo
+      setTaskInfo,
+      createTaskDiv
     }
 
   })();
@@ -99,16 +163,32 @@ import { createSidebar } from './sidebar.js';
       console.log('asdasd')
     }
 
-    const displayTask = () => {
-      taskBox.taskAddBtn.addEventListener('click', Create.setTaskInfo)
+    const displayTaskBox = () => {
+      taskBox.taskForm.style.display = 'block'
     }
 
-    displayTask()
+    const disappearTaskBox = () => {
+      taskBox.taskForm.style.display = 'none'
+    }
+
+    const displayTask = (title,due) => {
+      const task = Create.createTaskDiv(title,due)  
+      mainPage.appendChild(task)
+    }
 
 
+
+
+    return {
+      displayTaskBox,
+      disappearTaskBox,
+      displayTask
+    }
   })()
 
 })()
+
+
 
 
 
