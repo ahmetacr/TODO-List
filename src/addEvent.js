@@ -1,5 +1,11 @@
 // Export the add event function
 export function addEvent() {
+
+  // Create the form
+  const taskForm = document.createElement('form')
+  taskForm.classList.add('taskForm');
+
+
   const addEventDiv = document.createElement('div')
   
   const inputsDiv = document.createElement('div')
@@ -18,10 +24,11 @@ export function addEvent() {
   taskTitle.setAttribute('type','text')
   taskDescription.setAttribute('type','text')
   taskDate.setAttribute('type','date')
+  taskAddBtn.setAttribute('type','submit')
 
-  taskTitle.id = 'taskTitle'
-  taskDescription.id = 'taskDescription'
-  taskDate.id = 'taskDate'
+  taskTitle.id = 'taskTitleInput'
+  taskDescription.id = 'taskDescriptionInput'
+  taskDate.id = 'taskDateInput'
 
 
   taskTitle.setAttribute('placeholder','Title of the task')
@@ -34,6 +41,7 @@ export function addEvent() {
   taskAddBtn.textContent = 'Add Task'
 
 
+
   inputsDiv.appendChild(taskTitle)
   inputsDiv.appendChild(taskDescription)
   inputsDiv.appendChild(taskDate)
@@ -43,9 +51,12 @@ export function addEvent() {
 
   addEventDiv.appendChild(inputsDiv)
   addEventDiv.appendChild(addButtons)
+
+
+  taskForm.appendChild(addEventDiv);
   
   return {
-    addEventDiv,
+    taskForm,
     taskTitle,
     taskDescription,
     taskDate,
