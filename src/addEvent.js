@@ -24,7 +24,13 @@ export function addEvent() {
   taskTitle.setAttribute('type','text')
   taskDescription.setAttribute('type','text')
   taskDate.setAttribute('type','date')
+
+  taskCancelBtn.setAttribute('type','button')
   taskAddBtn.setAttribute('type','submit')
+
+  taskTitle.setAttribute('required','')
+  taskDescription.setAttribute('required','')
+  taskDate.setAttribute('required','')
 
   taskTitle.id = 'taskTitleInput'
   taskDescription.id = 'taskDescriptionInput'
@@ -39,7 +45,6 @@ export function addEvent() {
 
   taskCancelBtn.textContent = 'Cancel'
   taskAddBtn.textContent = 'Add Task'
-
 
 
   inputsDiv.appendChild(taskTitle)
