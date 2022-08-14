@@ -43,10 +43,6 @@ import { createSidebar } from './sidebar.js';
       this.due = due
       this.priority = priority
     }
-    
-    deleteProject = () => {
-      delete this
-    }
   }
 
   // Task Class to create a new project
@@ -54,23 +50,19 @@ import { createSidebar } from './sidebar.js';
     constructor(title,description,due,priority) {
       super(title,description,due,priority)
     }
-
-    deleteTask = () => {
-      delete this
-    }
   }
 
 
 
   const Create = (function() {
 
-
-    // add task a bastigiimda : create task obj, set task object, display task object, disappear taskBox 
-
     const createTask = () => {
-      DisplayInfo.displayTaskBox();
       const newTask = new Task();
       return newTask
+    }
+
+    const _createTaskBox = () => {
+      DisplayInfo.displayTaskBox();
     }
 
     const setTaskInfo = (newTask) => {
@@ -78,7 +70,6 @@ import { createSidebar } from './sidebar.js';
       newTask.description = document.getElementById('taskDescriptionInput').value
       newTask.due = document.getElementById('taskDateInput').value
     }
-
 
     const createTaskDiv = (title,due) => {
       const task = document.createElement('div')
@@ -97,6 +88,7 @@ import { createSidebar } from './sidebar.js';
       taskName.classList.add('taskName')
       taskDueDate.classList.add('taskDueDate')
 
+      task.id = `${title}`
       taskTitleP.id = 'taskTitle'
       taskDueP.id = 'taskDue'
 
@@ -122,11 +114,7 @@ import { createSidebar } from './sidebar.js';
       return task
     }
 
-
-
-
-    const addTask = (event) => {
-
+    const _manageTask = (event) => {
       // Create the task
       const newTask = createTask()
 
@@ -139,14 +127,33 @@ import { createSidebar } from './sidebar.js';
       // Disappear the task box
       DisplayInfo.disappearTaskBox()
 
+      // delete task
+      document.getElementById(`${newTask.title}`).addEventListener('change',_deleteTask)
 
+      // Prevent from reloading page!
       event.preventDefault();
       event.target.reset()
     }
 
+    const _deleteTask = (event) => {
+      console.log('REMOVED: ',event.path[1])
+      document.querySelector('.mainPage').removeChild(event.path[1])
+      event.stopPropagation()
+    }
 
-    header.addIcon.addEventListener('click',createTask)
-    taskBox.taskForm.addEventListener('submit', addTask)
+    const _cancelTask = () => {
+      taskBox.taskForm.reset();
+      DisplayInfo.disappearTaskBox()
+    }
+
+    const _listenTask = () => {
+      header.addIcon.addEventListener('click',_createTaskBox)
+      taskBox.taskForm.addEventListener('submit', _manageTask)
+      taskBox.taskCancelBtn.addEventListener('click',_cancelTask)
+    }
+
+    _listenTask()
+
 
     return {
       createTask,
