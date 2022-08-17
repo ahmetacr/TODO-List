@@ -8,7 +8,8 @@ module.exports = {
     delete_todo: './src/delete_todo.js',
     header: './src/header.js',
     sidebar: './src/sidebar.js',
-    addEvent: './src/addEvent.js'
+    addEvent: './src/addEvent.js',
+    addProject: './src/addProject.js'
   },
   devtool:'inline-source-map',
   plugins: [
