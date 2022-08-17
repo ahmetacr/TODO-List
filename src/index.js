@@ -3,6 +3,7 @@ import { compareAsc, format } from 'date-fns'
 import { deleteTODO } from './delete_todo.js';
 import { createHeader } from './header.js'
 import { addEvent } from './addEvent';
+import { addProject } from './addProject';
 import { createSidebar } from './sidebar.js';
 
 (function() {
@@ -33,6 +34,11 @@ import { createSidebar } from './sidebar.js';
   const taskBox = addEvent();
   document.body.appendChild(taskBox.taskForm);
 
+  // Project Box
+  const projectBox = addProject();
+  document.body.appendChild(projectBox.projectForm)
+
+
 
 
   // Project Class to create a new project
@@ -55,6 +61,128 @@ import { createSidebar } from './sidebar.js';
 
 
   const Create = (function() {
+
+    const createProject = () => {
+      const newProject = new Project()
+      return newProject
+    }
+
+    const _createProjectBox = () => {
+      DisplayInfo.displayProjectBox();
+    }
+
+    const setProjectInfo = (newProject) => {
+      newProject.title = document.getElementById('projectTitleInput').value
+      newProject.description = document.getElementById('projectDescriptionInput').value
+      newProject.due = document.getElementById('projectDateInput').value
+    }
+
+    const createProjectDiv = (title) => {
+      const project = document.createElement('div')
+      const projectName = document.createElement('div')
+      const projectIcon = document.createElement('i')
+      const projectNameP = document.createElement('p')
+      const projectDeleteIcon = document.createElement('i')
+
+      project.classList.add('project')
+      projectName.classList.add('projectName')
+      projectIcon.classList.add('material-icons')
+      projectDeleteIcon.classList.add('material-icons')
+
+      project.id = title
+
+      projectIcon.textContent = 'arrow_right'
+      projectNameP.textContent = title
+      projectDeleteIcon.textContent = 'delete'
+
+      projectName.appendChild(projectIcon)
+      projectName.appendChild(projectNameP)
+
+      project.appendChild(projectName)
+      project.appendChild(projectDeleteIcon)
+
+      return project
+    }
+
+    const createProjectDetails = (project) => {
+      const projectDisplayBox = document.createElement('div')
+      const projectName = document.createElement('p')
+      const projectDescription = document.createElement('p')
+      const projectDate = document.createElement('p')
+      
+      projectDisplayBox.classList.add('projectDisplayBox')
+      projectDisplayBox.id = project.title
+
+      projectName.id = 'projectName'
+      projectDescription.id = 'projectDescription'
+      projectDate.id = 'projectDate'
+
+      projectName.textContent = project.title
+      projectDescription.textContent = project.description
+      projectDate.textContent = `Project is Due: ${project.due}` 
+
+      projectDisplayBox.appendChild(projectName)
+      projectDisplayBox.appendChild(projectDescription)
+      projectDisplayBox.appendChild(projectDate)
+
+      return projectDisplayBox
+    }
+
+    const _manageProject = (event) => {
+      // Prevent from reloading page!
+      event.preventDefault()
+
+      // Create the project
+      const newProject = createProject()
+
+      // Set project object
+      setProjectInfo(newProject)
+
+      // Display the project object on the sidebar!
+      DisplayInfo.displayProject(newProject.title)
+
+      // Disappear the project box from the sidebar
+      DisplayInfo.disappearProjectBox()
+
+      // Display the CLICKED project object on the main page!
+      document.querySelector(`#${newProject.title}`).addEventListener('click',(event) => {
+        const activeProject = document.querySelector('.active')
+        if(activeProject) activeProject.classList.remove('active');
+        DisplayInfo.displayProjectInfo(newProject)
+        event.currentTarget.classList.add('active')
+      })
+
+      // Delete Project
+      document.querySelector(`#${newProject.title} > i`).addEventListener('click',_deleteProject)
+
+      // Reset the form!
+      event.target.reset()
+    } 
+
+    const _deleteProject = (event) => {
+      const removedProject = event.path[1]
+      const projectSection = document.querySelector('.projectSection')
+      const projectOnTheScreen = document.querySelector('.mainPage > div')
+      if (projectOnTheScreen !== null) {
+        if (projectOnTheScreen.id == event.path[1].id) {
+          document.querySelector('.mainPage').removeChild(projectOnTheScreen)
+        }
+      }
+      projectSection.removeChild(removedProject)
+      console.log('PROJECT REMOVED',removedProject)
+      event.stopPropagation()
+    }
+
+    const _cancelProject = () => {
+      projectBox.projectForm.reset()
+      DisplayInfo.disappearProjectBox()
+    }
+
+    const _listenProject = () => {
+      document.querySelector('.projectHeader > i').addEventListener('click', _createProjectBox)
+      projectBox.projectForm.addEventListener('submit', _manageProject)
+      projectBox.projectCancelBtn.addEventListener('click',_cancelProject)
+    }
 
     const createTask = () => {
       const newTask = new Task();
@@ -136,7 +264,7 @@ import { createSidebar } from './sidebar.js';
     }
 
     const _deleteTask = (event) => {
-      console.log('REMOVED: ',event.path[1])
+      console.log('TASK REMOVED: ',event.path[1])
       document.querySelector('.mainPage').removeChild(event.path[1])
       event.stopPropagation()
     }
@@ -152,13 +280,19 @@ import { createSidebar } from './sidebar.js';
       taskBox.taskCancelBtn.addEventListener('click',_cancelTask)
     }
 
-    _listenTask()
-
+    const _listen =  (function() {
+      _listenProject()
+      _listenTask()
+    })()
 
     return {
       createTask,
       setTaskInfo,
-      createTaskDiv
+      createTaskDiv,
+      createProject,
+      createProjectDiv,
+      setProjectInfo,
+      createProjectDetails
     }
 
   })();
@@ -166,8 +300,23 @@ import { createSidebar } from './sidebar.js';
 
   const DisplayInfo = (function() {
 
-    const displayProject = () => {
-      console.log('asdasd')
+    const displayProjectBox = () => {
+      projectBox.projectForm.style.display = 'block'
+    }
+
+    const disappearProjectBox = () => {
+      projectBox.projectForm.style.display = 'none'
+    }
+
+    const displayProject = (title) => {
+      const project = Create.createProjectDiv(title)
+      document.querySelector('.projectSection').appendChild(project)
+    }
+
+    const displayProjectInfo = (project) => {
+      if (document.querySelector('.mainPage').innerHTML) clearMainPage()
+      const projectDiv = Create.createProjectDetails(project)
+      document.querySelector('.mainPage').appendChild(projectDiv)
     }
 
     const displayTaskBox = () => {
@@ -183,16 +332,24 @@ import { createSidebar } from './sidebar.js';
       mainPage.appendChild(task)
     }
 
+    const manageTasksDisplay = (display) => {
+      document.querySelectorAll('.task').forEach(task => task.style.display = display)
+    }
 
-
+    const clearMainPage = () => {
+      document.querySelector('.mainPage').innerHTML = ''
+    }
 
     return {
       displayTaskBox,
       disappearTaskBox,
-      displayTask
+      displayTask,
+      displayProjectBox,
+      disappearProjectBox,
+      displayProject,
+      displayProjectInfo
     }
   })()
-
 })()
 
 
