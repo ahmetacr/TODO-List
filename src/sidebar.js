@@ -19,11 +19,11 @@ export function createSidebar() {
   const projectP = document.createElement('p')
   const addIcon = document.createElement('i')
   
-  const projectDiv = document.createElement('div')
-  const projectName = document.createElement('div')
-  const nameIcon = document.createElement('i')
-  const projectNameP = document.createElement('p')
-  const deleteIcon = document.createElement('i')
+  // const projectDiv = document.createElement('div')
+  // const projectName = document.createElement('div')
+  // const nameIcon = document.createElement('i')
+  // const projectNameP = document.createElement('p')
+  // const deleteIcon = document.createElement('i')
   
 
   sidebar.classList.add('sidebar')
@@ -38,11 +38,11 @@ export function createSidebar() {
   projectHeader.classList.add('projectHeader')
   addIcon.classList.add('material-icons')
 
-  projectDiv.classList.add('project')
-  projectName.classList.add('projectName')
-  nameIcon.classList.add('material-icons')
+  // projectDiv.classList.add('project')
+  // projectName.classList.add('projectName')
+  // nameIcon.classList.add('material-icons')
 
-  deleteIcon.classList.add('material-icons')
+  // deleteIcon.classList.add('material-icons')
 
   todayIcon.textContent = 'today'
   todayP.textContent = 'Today'
@@ -53,25 +53,25 @@ export function createSidebar() {
   projectP.textContent = 'Projects'
   addIcon.textContent = 'add'
 
-  nameIcon.textContent = 'arrow_right'
-  projectNameP.textContent = 'Project Name'
+  // nameIcon.textContent = 'arrow_right'
+  // projectNameP.textContent = 'Project Name'
 
-  deleteIcon.textContent = 'delete'
+  // deleteIcon.textContent = 'delete'
 
-  projectNameP.id = 'projectName'
+  // projectNameP.id = 'projectName'
 
   // Append Child
-  projectName.appendChild(nameIcon)
-  projectName.appendChild(projectNameP)
+  // projectName.appendChild(nameIcon)
+  // projectName.appendChild(projectNameP)
 
-  projectDiv.appendChild(projectName)
-  projectDiv.appendChild(deleteIcon)
+  // projectDiv.appendChild(projectName)
+  // projectDiv.appendChild(deleteIcon)
 
   projectHeader.appendChild(projectP)
   projectHeader.appendChild(addIcon)
 
   projectSection.appendChild(projectHeader)
-  projectSection.appendChild(projectDiv)
+  // projectSection.appendChild(projectDiv)
 
 
   today.appendChild(todayIcon)
