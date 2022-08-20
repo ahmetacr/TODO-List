@@ -7,6 +7,10 @@ export function addProject() {
   
   
     const addProjectDiv = document.createElement('div')
+
+    const formHeader = document.createElement('h2')
+    formHeader.classList.add('formHeader')
+    formHeader.textContent = 'CREATE PROJECT'
     
     const inputsDiv = document.createElement('div')
     const projectTitle = document.createElement('input')
@@ -54,6 +58,7 @@ export function addProject() {
     addButtons.appendChild(projectCancelBtn)
     addButtons.appendChild(projectAddBtn)
   
+    addProjectDiv.appendChild(formHeader)
     addProjectDiv.appendChild(inputsDiv)
     addProjectDiv.appendChild(addButtons)
   
