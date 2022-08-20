@@ -7,16 +7,39 @@ export function addEvent() {
 
 
   const addEventDiv = document.createElement('div')
+
+  const formHeader = document.createElement('h2')
   
   const inputsDiv = document.createElement('div')
   const taskTitle = document.createElement('input')
   const taskDescription = document.createElement('input')
   const taskDate = document.createElement('input')
 
+  const selectDiv = document.createElement('div')
+  const selectLabel = document.createElement('label')
+  const selectProject = document.createElement('select')
+  const inboxOption = document.createElement('option')
+
+  selectDiv.classList.add('selectDiv')
+
+  selectLabel.setAttribute('for','select-project')
+  inboxOption.setAttribute('selected','')
+  
+  selectProject.id = 'select-project'
+  inboxOption.value = 'Inbox'
+  inboxOption.textContent = 'Inbox'
+
+
+  selectProject.appendChild(inboxOption)
+
+  selectDiv.appendChild(selectLabel)
+  selectDiv.appendChild(selectProject)
+
   const addButtons = document.createElement('div')
   const taskCancelBtn = document.createElement('button')
   const taskAddBtn = document.createElement('button')
 
+  formHeader.classList.add('formHeader')
   addEventDiv.classList.add('addEvent')
   inputsDiv.classList.add('inputs')
   addButtons.classList.add('addButtons')
@@ -43,6 +66,7 @@ export function addEvent() {
   taskCancelBtn.id = 'taskCancelBtn'
   taskAddBtn.id = 'taskAddBtn'
 
+  formHeader.textContent = 'CREATE TASK'
   taskCancelBtn.textContent = 'Cancel'
   taskAddBtn.textContent = 'Add Task'
 
@@ -51,9 +75,12 @@ export function addEvent() {
   inputsDiv.appendChild(taskDescription)
   inputsDiv.appendChild(taskDate)
 
+  inputsDiv.appendChild(selectDiv)
+
   addButtons.appendChild(taskCancelBtn)
   addButtons.appendChild(taskAddBtn)
 
+  addEventDiv.appendChild(formHeader)
   addEventDiv.appendChild(inputsDiv)
   addEventDiv.appendChild(addButtons)
 
