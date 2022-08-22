@@ -13,6 +13,7 @@ import { createSidebar } from './sidebar.js';
 
 
 (function() {
+
   // Define Icons
   const iconLink = document.createElement('link')
   iconLink.setAttribute('rel','stylesheet')
