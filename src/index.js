@@ -7,7 +7,9 @@ import { addProject as projectForm } from './projectForm';
 import { createSidebar } from './sidebar.js';
 
 /**
- * Fix those bugs:
+ * Add these functions
+ * Edit and see the details of a task
+ * 
  * 
  */   
 
@@ -113,11 +115,13 @@ import { createSidebar } from './sidebar.js';
 
     const createProjectDetails = (project) => {
       const projectDisplayBox = document.createElement('div')
+      const nameAndDate = document.createElement('div')
       const projectName = document.createElement('p')
       const projectDescription = document.createElement('p')
       const projectDate = document.createElement('p')
       
       projectDisplayBox.classList.add('projectDisplayBox')
+      nameAndDate.classList.add('nameAndDate')
       projectDisplayBox.id = project.title
 
       projectName.id = 'projectName'
@@ -126,11 +130,13 @@ import { createSidebar } from './sidebar.js';
 
       projectName.textContent = project.title.replaceAll('-',' ')
       projectDescription.textContent = project.description
-      projectDate.textContent = `Due: ${project.due}` 
+      projectDate.textContent = `${project.due}` 
 
-      projectDisplayBox.appendChild(projectName)
+      nameAndDate.appendChild(projectName)
+      nameAndDate.appendChild(projectDate)
+
+      projectDisplayBox.appendChild(nameAndDate)
       projectDisplayBox.appendChild(projectDescription)
-      projectDisplayBox.appendChild(projectDate)
 
       return projectDisplayBox
     }
@@ -229,8 +235,8 @@ import { createSidebar } from './sidebar.js';
     }
 
     const setTaskInfo = (newTask) => {
-      // addEvent'ten donen itemlere de direkt ekleyebiliriz document.getEvent'dense
-      newTask.title = document.getElementById('taskTitleInput').value
+      newTask.title = taskBox.taskTitle.value
+      // newTask.title = document.getElementById('taskTitleInput').value
       newTask.description = document.getElementById('taskDescriptionInput').value
       newTask.due = document.getElementById('taskDateInput').value
       newTask.toProject = document.getElementById('select-project').value
@@ -247,18 +253,22 @@ import { createSidebar } from './sidebar.js';
       const dueDateHolder = document.createElement('p')
       const taskDueP = document.createElement('p')
 
+      const editIcon = document.createElement('i')
       const taskCheckbox = document.createElement('input')
 
+      editIcon.classList.add('material-icons')
       task.classList.add('task')
       taskName.classList.add('taskName')
       taskDueDate.classList.add('taskDueDate')
 
       task.setAttribute('data-project',toProject)
 
+      editIcon.id = 'editIcon'
       task.id = `${title}`
       taskTitleP.id = 'taskTitle'
       taskDueP.id = 'taskDue'
 
+      editIcon.textContent = 'edit'
       titleHolder.textContent = 'Task Title:'
       dueDateHolder.textContent = 'Due Date:'
 
@@ -276,6 +286,7 @@ import { createSidebar } from './sidebar.js';
 
       task.appendChild(taskName)
       task.appendChild(taskDueDate)
+      task.appendChild(editIcon)
       task.appendChild(taskCheckbox)
 
       return task
@@ -296,10 +307,61 @@ import { createSidebar } from './sidebar.js';
       // Disappear the task box
       DisplayInfo.disappearTaskForm()
 
+      // Edit task
+      document.getElementById('editIcon').addEventListener('click',(event) => _editTask(event,newTask))
+
       // delete task
       document.getElementById(`${newTask.title}`).addEventListener('change',_deleteTask)
 
       // Prevent from reloading page!
+      event.target.reset()
+    }
+
+    const _editTask = (event,newTask) => {
+      const editTaskForm = taskForm();
+      editTaskForm.taskForm.style.display = 'flex'
+      editTaskForm.taskForm.classList.add('fade-in')
+
+      editTaskForm.formHeader.textContent = 'EDIT TASK'
+
+      editTaskForm.inputsDiv.removeChild(editTaskForm.selectDiv)
+      mainPage.appendChild(editTaskForm.taskForm)
+
+      editTaskForm.taskTitle.removeAttribute('required')
+      editTaskForm.taskDescription.removeAttribute('required')
+      editTaskForm.taskDate.removeAttribute('required')
+
+      editTaskForm.taskForm.addEventListener('submit',(event) => _updateTask(event,newTask,editTaskForm))
+      editTaskForm.taskCancelBtn.addEventListener('click',() => {
+        editTaskForm.taskForm.reset()
+        editTaskForm.taskForm.style.display = 'none'
+      })
+    }
+
+    const _updateTask = (event,newTask,editTaskForm) => {
+      event.preventDefault()
+
+      if (editTaskForm.taskTitle.value !== '') {
+        newTask.title = editTaskForm.taskTitle.value
+      }
+
+      if (editTaskForm.taskDescription.value !== '') {
+        newTask.description = editTaskForm.taskDescription.value
+      }
+
+      if (editTaskForm.taskDate.value !== '') {
+        newTask.due = editTaskForm.taskDate.value
+      }
+
+      document.getElementById('taskTitle').textContent = newTask.title
+      document.getElementById('taskDue').textContent = newTask.due
+
+      console.log('New Title: ',newTask.title)
+      console.log('New Description: ',newTask.description)
+      console.log('New Date: ',newTask.due)
+
+      editTaskForm.taskForm.classList.remove('fade-in')
+      mainPage.removeChild(editTaskForm.taskForm)
       event.target.reset()
     }
 
@@ -316,10 +378,6 @@ import { createSidebar } from './sidebar.js';
 
     const createMainPage = () => {
       DisplayInfo.displayMainPage()
-    }
-
-    const manageToday = () => {
-      
     }
 
     const createTodayDiv = () => {
@@ -413,7 +471,7 @@ import { createSidebar } from './sidebar.js';
           if (project.classList.contains('activeProject')) {
             tasksOfProject.forEach(task => {
               if (task.getAttribute('data-project') == project.id) {
-                console.log('calisti')
+                console.log('Task Added')
                 task.style.display = 'flex'
               }
               else {
@@ -450,16 +508,12 @@ import { createSidebar } from './sidebar.js';
       document.querySelector('#select-project').appendChild(projectOption)
     }
 
-    const clearMainPage = () => {
-      document.querySelector('.mainPage').innerHTML = ''
-    }
-
     return {
-      displayTaskForm: displayTaskForm,
-      disappearTaskForm: disappearTaskForm,
+      displayTaskForm,
+      disappearTaskForm,
       displayTask,
-      displayProjectForm: displayProjectForm,
-      disappearProjectForm: disappearProjectForm,
+      displayProjectForm,
+      disappearProjectForm,
       displayProject,
       displayProjectInfo,
       displayMainPage,
