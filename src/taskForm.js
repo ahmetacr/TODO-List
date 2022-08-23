@@ -93,6 +93,9 @@ export function addEvent() {
     taskDescription,
     taskDate,
     taskCancelBtn,
-    taskAddBtn
+    taskAddBtn,
+    inputsDiv,
+    selectDiv,
+    formHeader
   }
 }
