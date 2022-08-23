@@ -8,14 +8,13 @@ import { createSidebar } from './sidebar.js';
 
 /**
  * Add these functions
- * Edit and see the details of a task
+ * Edit and see the details of a task coming from local storage
  * 
  * 
  */   
 
 
 (function() {
-
   // Define Icons
   const iconLink = document.createElement('link')
   iconLink.setAttribute('rel','stylesheet')
@@ -50,6 +49,9 @@ import { createSidebar } from './sidebar.js';
   // Project Box
   const projectBox = projectForm();
   document.body.appendChild(projectBox.projectForm)
+
+  // Init the page with saved tasks
+
 
   // Project Class to create a new project
   class Project {
@@ -151,6 +153,9 @@ import { createSidebar } from './sidebar.js';
       // Set project object
       setProjectInfo(newProject)
 
+      // Set Project to local store
+      setProjectToLocalStorage(newProject)
+
       // Display the project object on the sidebar!
       DisplayInfo.displayProject(newProject.title)
 
@@ -189,13 +194,13 @@ import { createSidebar } from './sidebar.js';
       DisplayInfo.addProjecttoTaskForm(newProject.title)
 
       // Delete Project
-      document.querySelector(`#${newProject.title} > i`).addEventListener('click',_deleteProject)
+      document.querySelector(`#${newProject.title} > i`).addEventListener('click',(event) => _deleteProject(newProject.title,event))
 
       // Reset the form!
       event.target.reset()
     } 
 
-    const _deleteProject = (event) => {
+    const _deleteProject = (title,event) => {
       const removedProject = event.path[1]
       document.getElementById('select-project').removeChild(document.querySelector(`option[value="${removedProject.id}"`))
 
@@ -206,9 +211,13 @@ import { createSidebar } from './sidebar.js';
           // Remove the project on the screen
           document.querySelector('.mainPage').removeChild(projectOnTheScreen)
           // delete the realted tasks
-          document.querySelectorAll(`.mainPage div[data-project="${projectOnTheScreen.id}"]`).forEach(task => document.querySelector('.mainPage').removeChild(task))
+          document.querySelectorAll(`.mainPage div[data-project="${projectOnTheScreen.id}"]`).forEach(task => {
+            localStorage.removeItem(`Task ${task.id}`)
+            document.querySelector('.mainPage').removeChild(task)
+          })
         }
       }
+      localStorage.removeItem(`Project ${title}`)
       projectSection.removeChild(removedProject)
       console.log('PROJECT REMOVED',removedProject)
       event.stopPropagation()
@@ -302,7 +311,12 @@ import { createSidebar } from './sidebar.js';
       setTaskInfo(newTask)
 
       // Display the task object on the page!
-      DisplayInfo.displayTask(newTask.title,newTask.due,newTask.toProject)
+      const task = Create.createTaskDiv(newTask.title,newTask.due,newTask.toProject) 
+      mainPage.appendChild(task)
+      DisplayInfo.displayTask(newTask.toProject)
+
+      // Add it to the local storage
+      setTaskToLocalStorage(newTask)
 
       // Disappear the task box
       DisplayInfo.disappearTaskForm()
@@ -311,7 +325,7 @@ import { createSidebar } from './sidebar.js';
       document.getElementById('editIcon').addEventListener('click',(event) => _editTask(event,newTask))
 
       // delete task
-      document.getElementById(`${newTask.title}`).addEventListener('change',_deleteTask)
+      document.getElementById(`${newTask.title}`).addEventListener('change',(event) => _deleteTask(newTask.title,event))
 
       // Prevent from reloading page!
       event.target.reset()
@@ -319,6 +333,8 @@ import { createSidebar } from './sidebar.js';
 
     const _editTask = (event,newTask) => {
       const editTaskForm = taskForm();
+      console.log('worked')
+
       editTaskForm.taskForm.style.display = 'flex'
       editTaskForm.taskForm.classList.add('fade-in')
 
@@ -365,8 +381,79 @@ import { createSidebar } from './sidebar.js';
       event.target.reset()
     }
 
-    const _deleteTask = (event) => {
+    const setTaskToLocalStorage = (newTask) => {
+      localStorage.setItem(`Task ${newTask.title}`,JSON.stringify(newTask))
+    }
+
+    const setProjectToLocalStorage = (newProject) => {
+      localStorage.setItem(`Project ${newProject.title}`,JSON.stringify(newProject))
+    }
+
+    const getItemFromLocalStore = () => {
+      for(let i=0;i<localStorage.length; i++) {
+        if (localStorage.key(i).includes('Task')) {
+
+          let taskTitle = localStorage.key( i );
+          let taskDetail = JSON.parse( localStorage.getItem( taskTitle ) );
+          let storedTask = Create.createTaskDiv(taskDetail.title,taskDetail.due,taskDetail.toProject)
+  
+          mainPage.appendChild(storedTask)
+  
+          DisplayInfo.displayTask(taskDetail.toProject)
+
+          document.getElementById(`${taskDetail.title}`).addEventListener('change',(event) => _deleteTask(taskDetail.title,event))
+        }
+        // document.getElementById('editIcon').addEventListener('click',(event) => _editTask(event,taskDetail))
+      }
+    }
+
+    const getProjectFromLocalStore = () => {
+      for(let i=0;i<localStorage.length; i++) {
+        if (localStorage.key(i).includes('Project')) {
+          let projectTitle = localStorage.key( i );
+          let projectDetail = JSON.parse( localStorage.getItem( projectTitle ) );
+  
+          DisplayInfo.displayProject(projectDetail.title)
+
+          const projectDiv = Create.createProjectDetails(projectDetail)
+          projectDiv.style.display = 'none'
+          document.querySelector('.mainPage').prepend(projectDiv) 
+
+          // Display the CLICKED project object on the main page!
+          document.querySelector(`.projectSection #${projectDetail.title}`).addEventListener('click',(event) => {
+            // If the clicked one is active do nothing!
+            if (event.currentTarget.classList.contains('active')) {
+              console.log('This project is already active!')
+              console.log(event.currentTarget.classList)
+            } else {
+              DisplayInfo.displayProjectInfo(projectDiv)
+              console.log(projectDiv)
+              projectDiv.classList.add('activeProject')
+              document.querySelectorAll('.task').forEach(task => task.style.display = 'none')
+              document.querySelectorAll(`.mainPage div[data-project="${projectDetail.title}"]`).forEach(task => task.style.display = 'flex')
+    
+              let activeProject = document.querySelector('.active')
+              if (activeProject) { 
+                activeProject.classList.remove('active')
+                document.querySelector(`.mainPage > #${activeProject.id}`).style.display = 'none'
+                document.querySelector(`.mainPage > #${activeProject.id}`).classList.remove('activeProject')
+              }
+              event.currentTarget.classList.add('active')        
+            }
+          })
+
+          // Add the project name to the Select options of task creation
+          DisplayInfo.addProjecttoTaskForm(projectDetail.title)
+
+          // Delete Project
+          document.querySelector(`#${projectDetail.title} > i`).addEventListener('click',(event) => _deleteProject(projectDetail.title,event))
+        }
+      }
+    }
+
+    const _deleteTask = (title,event) => {
       console.log('TASK REMOVED: ',event.path[1])
+      localStorage.removeItem(`Task ${title}`)
       document.querySelector('.mainPage').removeChild(event.path[1])
       event.stopPropagation()
     }
@@ -418,7 +505,9 @@ import { createSidebar } from './sidebar.js';
       createProjectDiv,
       setProjectInfo,
       createProjectDetails,
-      createTodayDiv
+      createTodayDiv,
+      getItemFromLocalStore,
+      getProjectFromLocalStore
     }
 
   })();
@@ -458,10 +547,9 @@ import { createSidebar } from './sidebar.js';
       hiddenBG.style.cssText = 'z-index:-1; opacity:0'
     }
 
-    const displayTask = (title,due,toProject) => {
+    const displayTask = (toProject) => {
       //  eger ekranda bir proje varsa ve bu projeye task ekleniyorsa o halde display flex olarak eklenmeli
-      const task = Create.createTaskDiv(title,due,toProject) 
-      mainPage.appendChild(task)
+
       const tasksOfProject = (document.querySelectorAll(`.mainPage div[data-project="${toProject}"]`))
       tasksOfProject.forEach(task => task.style.display = 'none')
       // Bu alttaki if statemetlarda sadece ilk taski eklerken ekranda proje var mi ona bakiyorum
@@ -517,7 +605,11 @@ import { createSidebar } from './sidebar.js';
       displayProject,
       displayProjectInfo,
       displayMainPage,
-      addProjecttoTaskForm
+      addProjecttoTaskForm,
     }
   })()
+
+
+  Create.getItemFromLocalStore()
+  Create.getProjectFromLocalStore()
 })()
